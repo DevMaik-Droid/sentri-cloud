@@ -1,0 +1,124 @@
+services:
+
+  # --------------------------------------------------
+  # 1. CLOUDFLARED TUNNEL
+  # --------------------------------------------------
+  cloudflared:
+    image: cloudflare/cloudflared:2025.11.1
+    container_name: cloudflared
+    restart: always
+    command: tunnel run
+    volumes:
+      - ./platform/cloudflared:/etc/cloudflared
+    networks:
+      - sentri_net
+
+  # --------------------------------------------------
+  # 2. TRAEFIK (reverse proxy principal)
+  # --------------------------------------------------
+  traefik:
+    build: ./platform/deployer
+    container_name: sentri-traefik
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./platform/deployer/dynamic:/etc/traefik/dynamic
+      - ./platform/deployer/traefik.yml:/etc/traefik/traefik.yml
+    depends_on:
+      - cloudflared
+    networks:
+      - sentri_net
+
+  # --------------------------------------------------
+  # 3. NGINX (solo para el PANEL)
+  # --------------------------------------------------
+  nginx:
+    image: nginx:alpine3.22
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./platform/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - frontend
+    networks:
+      - sentri_net
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.panel.rule=Host(`cloud.sentinel-guard.lat`)
+      - traefik.http.routers.panel.entrypoints=web
+      - traefik.http.services.panel.loadbalancer.server.port=80
+
+  # --------------------------------------------------
+  # 4. DATABASE
+  # --------------------------------------------------
+  database:
+    image: postgres:17.7-alpine
+    container_name: database
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - sentri_net
+
+  # --------------------------------------------------
+  # 5. BACKEND (FastAPI)
+  # --------------------------------------------------
+  backend:
+    build: ./platform/backend
+    container_name: backend
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./platform/backend:/app
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      FRONTEND_URL: "${SERVIDOR_APP}"
+      DATABASE_URL: "${DATABASE_URL}"
+      SECRET_KEY: "${SECRET_KEY}"
+      CRYPTO_SECRET_KEY: "${CRYPTO_SECRET_KEY}"
+      GITHUB_CLIENT_ID: "${GITHUB_CLIENT_ID}"
+      GITHUB_CLIENT_SECRET: "${GITHUB_CLIENT_SECRET}"
+      GITHUB_REDIRECT_URL: "${GITHUB_REDIRECT_URL}"
+      ALGORITHM: "${ALGORITHM}"
+      ACCESS_TOKEN_EXPIRE_HOURS: "${ACCESS_TOKEN_EXPIRE_HOURS}"
+    depends_on:
+      - database
+    networks:
+      - sentri_net
+
+  # --------------------------------------------------
+  # 6. FRONTEND (Next.js)
+  # --------------------------------------------------
+  frontend:
+    build: ./platform/frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "3030:3030"
+    volumes:
+      - ./platform/frontend:/app
+      - /app/node_modules
+      - /app/.next
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      NEXT_PUBLIC_API_URL: "${SERVIDOR_APP}/api"
+    depends_on:
+      - backend
+    networks:
+      - sentri_net
+
+volumes:
+  pgdata:
+
+networks:
+  sentri_net:
+    external: true

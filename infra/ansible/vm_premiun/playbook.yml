@@ -1,0 +1,8 @@
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Instalar Tailscale
+      shell: |
+        curl -fsSL https://tailscale.com/install.sh | sh
+        tailscale up --authkey={{ tailscale_key }} --ssh --hostname={{ hostname }}

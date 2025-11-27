@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}
+    Dashboard
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="text-center">Tareas</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Titulo</th>
+                        <th>Descripcion</th>
+                        <th>Completado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task['title'] }}</td>
+                        <td>{{ task['descripcion'] }}</td>
+                        <td>{% if task['completed'] == '0' %}No completado{% else %}Completado{% endif %}</td>
+                        <td>
+                            <a href="{{ url_for('editar_task', id=task['id']) }}" class="btn btn-primary" >Editar</a>
+                            <a href="{{ url_for('eliminar_task', id=task['id']) }}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta tarea?')">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="/nueva_task" class="btn btn-success">Nueva Task</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

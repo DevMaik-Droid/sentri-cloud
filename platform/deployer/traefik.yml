@@ -1,0 +1,18 @@
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+
+providers:
+
+  # Carga reglas dinámicas (lo que genera TraefikManager)
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+  # Habilita lectura de labels (no lo usas ahora, pero útil)
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false

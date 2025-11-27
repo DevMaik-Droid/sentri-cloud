@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh">
+        <div class="col-lg-5" style="background-color: #f2f2f2; padding: 20px; border-radius: 10px">
+            <h3 class="text-center">Nueva Tarea</h3>
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Titulo</label>
+                    <input type="text" class="form-control" id="title" name="title"
+                        placeholder="Ingrese el titulo de la tarea" value="{{ task.title if task else '' }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripcion</label>
+                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                        placeholder="Ingrese la descripcion de la tarea" required>{{ task.descripcion if task else '' }} </textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="completed" class="form-label">Completada</label>
+                    <select class="form-select" id="completed" name="completed">
+                        <option value="0" {{ 'selected' if task and task['completed'] == '0' else '' }}>No</option>
+                        <option value="1" {{ 'selected' if task and task['completed'] == '1' else '' }}>Si</option>
+                    </select>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary">{% if task %}Actualizar{% else %}Crear{% endif %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

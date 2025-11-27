@@ -1,0 +1,20 @@
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Instalar paquetes base
+      apt:
+        update_cache: yes
+        name:
+          - curl
+          - unzip
+          - git
+
+    - name: Instalar Docker
+      shell: curl -fsSL https://get.docker.com | sh
+
+    - name: Crear usuario deploy
+      user:
+        name: deploy
+        shell: /bin/bash
+        password: "{{ deploy_password | password_hash('sha512') }}"

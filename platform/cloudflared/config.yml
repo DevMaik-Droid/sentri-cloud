@@ -1,0 +1,14 @@
+tunnel: f7813262-de4b-4019-8a5c-d92a013bb76b
+credentials-file: /etc/cloudflared/f7813262-de4b-4019-8a5c-d92a013bb76b.json
+
+ingress:
+  # 1. TODOS LOS PROYECTOS (LXC → Traefik)
+  - hostname: "*.sentinel-guard.lat"
+    service: http://traefik:80
+
+  # 2. PANEL ADMINISTRATIVO
+  - hostname: cloud.sentinel-guard.lat
+    service: http://nginx:80
+
+  # fallback
+  - service: http_status:404

@@ -1,0 +1,31 @@
+fastapi
+uvicorn[standard]
+
+# Base de datos async
+asyncpg
+# Seguridad
+bcrypt
+python-jose
+passlib
+
+# Validación y modelos
+pydantic
+pydantic-settings
+email_validator
+
+# Requests async (para Build Server, Deploy Host, Webhooks)
+httpx
+
+# CORS, middlewares y utilidades
+starlette
+python-slugify
+python-multipart
+requests
+# Manejo de .env
+python-dotenv
+
+# (Opcional pero recomendable)
+orjson  # respuestas rápidas
+ujson # json rápido
+cryptography
+
