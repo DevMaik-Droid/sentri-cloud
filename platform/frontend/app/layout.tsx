@@ -1,12 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/context/auth-provider"
-
-const _inter = Inter({ subsets: ["latin"] })
-const _jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] })
-
 export const metadata: Metadata = {
   title: "Sentri Cloud - Deploy your projects with ease",
   description: "Professional cloud hosting platform for deploying projects via ZIP or GitHub",
